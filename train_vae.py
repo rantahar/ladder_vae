@@ -8,7 +8,7 @@ import time
 import sys
 import os
 
-learning_rate = 0.0001
+learning_rate = 0.001
 elbo_ramp = 10
 BATCH_SIZE = 64
 epochs = 10
@@ -16,13 +16,13 @@ save_every = 100
 log_every = 10
 
 IMG_SIZE = 64
-latent_dim = 32
-elbo_weight = 1e-4 # ~ 1.0/#images
+latent_dim = 64
+elbo_weight = 3e-5 # ~ 1.0/#images
 min_features = 16
 max_features = 256
 
-MODEL_PATH = f'vae_{IMG_SIZE}_{min_features}_{max_features}_{latent_dim}_{elbo_weight}'
-sample_path = f'samples_{IMG_SIZE}_{min_features}_{max_features}_{latent_dim}__{elbo_weight}'
+MODEL_PATH = f'vae_2_{IMG_SIZE}_{min_features}_{max_features}_{latent_dim}_{elbo_weight}'
+sample_path = f'samples_2_{IMG_SIZE}_{min_features}_{max_features}_{latent_dim}__{elbo_weight}'
 DATA_PATH = '../data/celeba'
 
 
@@ -65,6 +65,7 @@ def downscale(x, size):
     new_shape = shape[1:3] // 2
     x = tf.image.resize(x, new_shape, method="bilinear")
     x = layers.Conv2D(size, 1, padding='same', kernel_initializer=init)(x)
+    x = conv_block(x, size)
     return x
 
 
@@ -84,6 +85,7 @@ def upscale(x):
 
 def upscale_block(x, size):
     x = upscale(x)
+    x = conv_block(x, size)
     x = conv_block(x, size)
     return x
 
